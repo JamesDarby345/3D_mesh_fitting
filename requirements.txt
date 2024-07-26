@@ -1,0 +1,8 @@
+numpy
+scipy
+scikit-image
+trimesh
+matplotlib
+plotly
+nbformat
+pyvista
