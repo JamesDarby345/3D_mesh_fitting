@@ -1,4 +1,7 @@
 import numpy as np
+import pyvista as pv
+import plotly.graph_objects as go
+import matplotlib.pyplot as plt
 
 def trimesh_to_pyvista(trimesh_obj):
     """Convert a Trimesh object to a PyVista PolyData object."""
@@ -24,11 +27,15 @@ def visualize_data_and_meshes(synthetic_data, optimal_meshes, mesh_only=False):
         # Add volume to plotter
         plotter.add_volume(grid, cmap="viridis", opacity="linear")
 
-    # Add each optimal mesh to the plotter
+    # Generate a color map for the meshes
+    num_meshes = len(optimal_meshes)
+    colors = plt.cm.rainbow(np.linspace(0, 1, num_meshes))
+
+    # Add each optimal mesh to the plotter with a unique color
     for i, mesh in enumerate(optimal_meshes):
-        color = plt.cm.Set2(i / len(optimal_meshes))
+        color = colors[i][:3]  # RGB values (excluding alpha)
         plotter_mesh = trimesh_to_pyvista(mesh)
-        plotter.add_mesh(plotter_mesh, color=color[:3], opacity=1.0 if mesh_only else 0.7)
+        plotter.add_mesh(plotter_mesh, color=color, opacity=1.0 if mesh_only else 0.7)
 
     # Show the plot
     plotter.show()
@@ -92,7 +99,10 @@ def generate_synthetic_data(size=100, thickness=1, parabola_a=0.01,
     px, py, pz = parabola_center
     parabola_z = parabola_a * ((x - px)**2 + (y - py)**2) + pz
     parabola_mask = np.abs(z - parabola_z) <= thickness/2
+    parabola_zu = -parabola_a * ((x - px)**2 + (y - py)**2) + pz
+    parabola_masku = np.abs(z - parabola_zu) <= thickness/2
     data[parabola_mask] = 1
+    data[parabola_masku] = 1
     
     # Generate plane
     plane_normal = np.array(plane_normal)

@@ -2,6 +2,7 @@ from skimage import measure
 from scipy.spatial import cKDTree
 import trimesh
 import numpy as np
+from helper import *
 
 def generate_optimal_meshes(volume_data, coverage_threshold=0.9, distance_threshold=5):
     """
@@ -28,6 +29,9 @@ def generate_initial_meshes(volume_data):
     
     # Split the mesh into connected components
     split_meshes = mesh.split(only_watertight=False)
+
+    print("visualizing marching cubes output after cc split") 
+    visualize_data_and_meshes(volume_data, split_meshes, mesh_only=True)
     
     # Filter out closed meshes (those that enclose a volume)
     open_meshes = [m for m in split_meshes if not m.is_volume]
