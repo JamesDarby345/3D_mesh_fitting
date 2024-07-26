@@ -1,4 +1,4 @@
-python mesh_fitting.py
+```python mesh_fitting.py```
 
 create synthetic volumetric data of a plane and parabola intersecting<br>
 creates optimal meshes<br>
