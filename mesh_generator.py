@@ -1,6 +1,7 @@
 from skimage import measure
 from scipy.spatial import cKDTree
 import trimesh
+import numpy as np
 
 def generate_optimal_meshes(volume_data, coverage_threshold=0.9, distance_threshold=5):
     """
