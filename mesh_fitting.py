@@ -1,6 +1,6 @@
 import numpy as np
 from helper import *
-from mesh_generator import *
+from generate_meshes import *
 
 
 # Parameters

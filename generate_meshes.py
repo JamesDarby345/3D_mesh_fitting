@@ -2,7 +2,7 @@ from skimage import measure
 from scipy.spatial import cKDTree
 import trimesh
 import numpy as np
-from helper import *
+from helper import visualize_data_and_meshes
 
 def generate_optimal_meshes(volume_data, coverage_threshold=0.9, distance_threshold=5):
     """
@@ -38,6 +38,39 @@ def generate_initial_meshes(volume_data):
     
     return open_meshes
 
+def check_bounding_box_intersection(bounds1, bounds2):
+    """
+    Check if two bounding boxes intersect.
+    
+    :param bounds1: Bounds of the first mesh (2x3 array: [[min_x, min_y, min_z], [max_x, max_y, max_z]])
+    :param bounds2: Bounds of the second mesh (2x3 array: [[min_x, min_y, min_z], [max_x, max_y, max_z]])
+    :return: Boolean indicating whether the bounding boxes intersect
+    """
+    return np.all(bounds1[0] <= bounds2[1]) and np.all(bounds2[0] <= bounds1[1])
+
+def check_intersection(mesh1, mesh2):
+    """
+    Check if two meshes intersect using a two-phase approach:
+    1. Quick bounding box check
+    2. Precise FCL check (only if bounding boxes intersect)
+    
+    :param mesh1: First Trimesh object
+    :param mesh2: Second Trimesh object
+    :return: Boolean indicating whether the meshes intersect
+    """
+    # Phase 1: Quick bounding box check
+    if not check_bounding_box_intersection(mesh1.bounds, mesh2.bounds):
+        return False
+    
+    # Phase 2: Precise FCL check
+    manager = trimesh.collision.CollisionManager()
+    manager.add_object("mesh1", mesh1)
+    
+    # Check if mesh2 collides with mesh1
+    is_collision = manager.in_collision_single(mesh2)
+    
+    return is_collision
+
 def optimize_meshes(meshes, volume_data, coverage_threshold, distance_threshold):
     """Optimize meshes to meet the given constraints."""
     covered_voxels = np.zeros_like(volume_data, dtype=bool)
@@ -49,7 +82,7 @@ def optimize_meshes(meshes, volume_data, coverage_threshold, distance_threshold)
         
         for mesh in meshes:
             # Check if mesh intersects with any optimized mesh
-            if any(mesh.intersects_other(m) for m in optimized_meshes):
+            if any(check_intersection(mesh, m) for m in optimized_meshes):
                 continue
             
             # Calculate coverage

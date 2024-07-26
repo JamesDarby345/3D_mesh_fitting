@@ -1,4 +1,4 @@
-numpy
+numpy<2
 scipy
 scikit-image
 trimesh
@@ -6,3 +6,5 @@ matplotlib
 plotly
 nbformat
 pyvista
+python-fcl
+cython
